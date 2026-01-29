@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { steps } from "../utils/steps.js";
+import { steps, getStepIndex } from "../utils/steps.js";
 import { useStepNavigation } from "../components/context/StepNavigationContext.jsx";
 
 const Footer = () => {
@@ -8,17 +8,30 @@ const Footer = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const currentIndex = steps.indexOf(location.pathname);
+  const currentIndex = getStepIndex(location.pathname);
 
   const goNext = () => {
     if (currentIndex < steps.length - 1) {
-      navigate(steps[currentIndex + 1]);
+      const nextStep = steps[currentIndex + 1];
+      // Keep token in URL when navigating to upload-photos
+      if (nextStep === "/upload-photos/:token") {
+        const token = new URLSearchParams(location.search).get("token") || location.pathname.split("/upload-photos/")[1];
+        navigate(token ? `/upload-photos/${token}` : nextStep);
+      } else {
+        navigate(nextStep);
+      }
     }
   };
 
   const goPrevious = () => {
     if (currentIndex > 0) {
-      navigate(steps[currentIndex - 1]);
+      const prevStep = steps[currentIndex - 1];
+      if (prevStep === "/upload-photos/:token") {
+        const token = location.pathname.split("/upload-photos/")[1];
+        navigate(token ? `/upload-photos/${token}` : "/upload-link-sent");
+      } else {
+        navigate(prevStep);
+      }
     }
   };
 

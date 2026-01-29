@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
+
 export const propertyApi = createApi({
   reducerPath: "propertyApi",
   baseQuery: fetchBaseQuery({
@@ -25,7 +26,22 @@ export const propertyApi = createApi({
         method: "GET",
       }),
     }),
+     confirmPaymentAndGetUploadLink: builder.mutation({
+      query: (body) => ({
+        url: "/confirm-payment-and-upload-link",
+        method: "POST",
+        body,
+      }),
+    }),
+    uploadPhoto: builder.mutation({
+      query: (formData) => ({
+        url: "/upload-photo",
+        method: "POST",
+        body: formData,
+      }),
+    }),
+
   }),
 })
 
-export const { useCreatePropertyMutation, useGetUploadLinkQuery, useLazyGetUploadLinkQuery, useGetPropertyByUploadTokenQuery } = propertyApi;
+export const { useCreatePropertyMutation, useGetUploadLinkQuery, useLazyGetUploadLinkQuery, useGetPropertyByUploadTokenQuery , useConfirmPaymentAndGetUploadLinkMutation, useUploadPhotoMutation } = propertyApi;

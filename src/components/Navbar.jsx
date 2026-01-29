@@ -1,11 +1,11 @@
 import React from 'react'
 import { BsLightningChargeFill } from "react-icons/bs"
-import { steps } from '../utils/steps'
+import { steps, getStepIndex } from '../utils/steps'
 import { useLocation } from "react-router-dom";
 
 const Navbar = () => {
     const location = useLocation();
-    const currentStep = steps.indexOf(location.pathname) + 1;
+    const currentStep = Math.max(0, getStepIndex(location.pathname)) + 1;
     return (
         <div className="bg-white shadow-lg border-b-2 border-emerald-600 sticky top-0 z-50 px-4 sm:px-6 py-3 sm:py-4">
             <div className="max-w-7xl mx-auto flex justify-between items-center">

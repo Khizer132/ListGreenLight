@@ -11,7 +11,7 @@ import {
 } from "@stripe/react-stripe-js"
 
 import { useCreateIntentMutation } from "../../redux/api/paymentApi.js"
-import { useLazyGetUploadLinkQuery } from "../../redux/api/propertyApi.js"
+import { useConfirmPaymentAndGetUploadLinkMutation } from "../../redux/api/propertyApi.js"
 import { useStepNavigation } from "../context/StepNavigationContext.jsx"
 import toast from "react-hot-toast"
 
@@ -37,7 +37,7 @@ function PaymentForm({ propertyId }) {
   const [createIntent, { isLoading: creatingIntent, error: intentError, isSuccess }] =
     useCreateIntentMutation();
 
-  const [triggerGetUploadLink] = useLazyGetUploadLinkQuery()
+  const [confirmPaymentAndGetUploadLink] = useConfirmPaymentAndGetUploadLinkMutation()
 
   const { registerNext } = useStepNavigation()
 
@@ -88,11 +88,13 @@ function PaymentForm({ propertyId }) {
       toast.success("Payment successful!")
 
       try {
-        const res = await triggerGetUploadLink(propertyId).unwrap()
+        const res = await confirmPaymentAndGetUploadLink({
+          propertyId,
+          paymentIntentId: paymentIntent.id,
+        }).unwrap()
         const token = res.uploadToken
 
         navigate(`/upload-link-sent?token=${token}`)
-
       } catch (e) {
         setMessage("Payment succeeded, but we couldn't generate your upload link. Please refresh or contact support.")
         return
