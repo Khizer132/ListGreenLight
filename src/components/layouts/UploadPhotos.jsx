@@ -123,6 +123,7 @@ const UploadPhotos = () => {
     try {
       await uploadPhoto(formData).unwrap()
       toast.success("Photo saved")
+      refetch()
     } catch (err) {
       toast.error(err?.data?.message || "Upload failed")
     }

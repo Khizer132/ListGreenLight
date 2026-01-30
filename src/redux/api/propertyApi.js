@@ -6,6 +6,7 @@ export const propertyApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_API_BASE_URL}/api/property`,
   }),
+  tagTypes: ['Property'],
   endpoints: (builder) => ({
     createProperty: builder.mutation({
       query: (data) => ({
@@ -25,6 +26,7 @@ export const propertyApi = createApi({
         url: `/by-upload-token/${token}`,
         method: "GET",
       }),
+      providesTags: (result, error, token) => [{ type: 'Property', id: token }],
     }),
      confirmPaymentAndGetUploadLink: builder.mutation({
       query: (body) => ({
@@ -39,7 +41,11 @@ export const propertyApi = createApi({
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: (result, error, formData) => [
+        { type: 'Property', id: formData.get('token') }
+      ],
     }),
+
 
   }),
 })
