@@ -6,6 +6,7 @@ export const steps = [
   "/upload-photos/:token",
   "/analysis/:token",
   "/final-approval",
+  
 ];
 
 /**
@@ -28,3 +29,5 @@ export function getStepIndex(pathname) {
   }
   return -1;
 }
+
+
