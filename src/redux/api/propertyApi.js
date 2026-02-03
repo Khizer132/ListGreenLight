@@ -28,7 +28,7 @@ export const propertyApi = createApi({
       }),
       providesTags: (result, error, token) => [{ type: 'Property', id: token }],
     }),
-     confirmPaymentAndGetUploadLink: builder.mutation({
+    confirmPaymentAndGetUploadLink: builder.mutation({
       query: (body) => ({
         url: "/confirm-payment-and-upload-link",
         method: "POST",
@@ -45,9 +45,15 @@ export const propertyApi = createApi({
         { type: 'Property', id: formData.get('token') }
       ],
     }),
-
-
+    analyzePhotos: builder.mutation({
+      query: (body) => ({
+        url: "/analyze-photos",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, body) => [{ type: "Property", id: body.token }],
+    }),
   }),
 })
 
-export const { useCreatePropertyMutation, useGetUploadLinkQuery, useLazyGetUploadLinkQuery, useGetPropertyByUploadTokenQuery , useConfirmPaymentAndGetUploadLinkMutation, useUploadPhotoMutation } = propertyApi;
+export const { useCreatePropertyMutation, useGetUploadLinkQuery, useLazyGetUploadLinkQuery, useGetPropertyByUploadTokenQuery, useConfirmPaymentAndGetUploadLinkMutation, useUploadPhotoMutation, useAnalyzePhotosMutation } = propertyApi;

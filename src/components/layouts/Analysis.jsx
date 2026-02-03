@@ -1,67 +1,192 @@
-import React from 'react'
+import React, { useEffect, useCallback, useRef } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { useGetPropertyByUploadTokenQuery, useAnalyzePhotosMutation } from "../../redux/api/propertyApi"
+import { useStepNavigation } from "../context/StepNavigationContext.jsx"
+
+const ROOMS = [
+  { id: "kitchen", label: "Kitchen", icon: "🍳" },
+  { id: "living-room", label: "Living Room", icon: "🛋️" },
+  { id: "primary-bedroom", label: "Primary Bedroom", icon: "🛏️" },
+  { id: "primary-bathroom", label: "Primary Bathroom", icon: "🚿" },
+]
 
 const Analysis = () => {
+  const { token } = useParams()
+  const navigate = useNavigate()
+  const { registerNext } = useStepNavigation()
+  const { data, isLoading: loadingProperty, refetch } = useGetPropertyByUploadTokenQuery(token, {
+    skip: !token,
+  })
+  const [triggerAnalyze, { isLoading: analyzing }] = useAnalyzePhotosMutation()
+
+  const address = data?.address ?? ""
+  const photos = data?.photos ?? []
+  const analysisStatus = data?.analysisStatus ?? "pending"
+  const analysisResults = data?.analysisResults ?? []
+
+  const totalRooms = photos.length
+  const analyzedCount = analysisResults.length
+  const isAnalyzing = analysisStatus === "analyzing" || analyzing
+  const isComplete = analysisStatus === "completed"
+  const hasTriggeredAnalyze = useRef(false)
+
+  useEffect(() => {
+    if (analysisStatus === "failed") hasTriggeredAnalyze.current = false
+  }, [analysisStatus])
+
+  useEffect(() => {
+    if (!token || photos.length === 0) return
+    if (analysisStatus !== "pending" && analysisStatus !== "failed") return
+    if (hasTriggeredAnalyze.current) return
+    hasTriggeredAnalyze.current = true
+    triggerAnalyze({ token })
+      .then(() => refetch())
+      .catch(() => {
+        hasTriggeredAnalyze.current = false
+      })
+  }, [token, photos.length, analysisStatus, triggerAnalyze, refetch])
+
+  useEffect(() => {
+    let interval
+    if (isAnalyzing && token) {
+      interval = setInterval(() => refetch(), 1500)
+    }
+    return () => clearInterval(interval)
+  }, [isAnalyzing, token, refetch])
+
+  const handleNext = useCallback(() => {
+    
+    const needsWork = analysisResults.some((r) => r.status === "NEEDS_WORK")
+
+    if (needsWork && token) {
+      navigate(`/upload-photos/${token}`)
+    }
+      
+    else {
+      navigate("/final-approval")
+    }
+  }, [analysisResults, token, navigate])
+
+  useEffect(() => {
+    registerNext(handleNext)
+  }, [registerNext, handleNext])
+
+  if (!token) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
+        <p className="text-center text-gray-600">Invalid or missing upload link.</p>
+      </div>
+    )
+  }
+
+  if (loadingProperty && !data) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
+        <p className="text-center text-gray-600">Loading...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
       <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6">
+        {analysisStatus === "failed" && (
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded mb-4">
+            <p className="text-sm text-amber-800 font-medium">
+              Analysis failed (e.g. rate limit). Please wait a minute and refresh the page to try again.
+            </p>
+          </div>
+        )}
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Analysis Complete!</h2>
-          <p className='text-sm sm:text-base text-gray-600'>123 Maple Street, Omaha, NE 68102</p>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+            {isComplete ? "Analysis complete" : "Analyzing Your Photos..."}
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 mb-2">{address || "—"}</p>
+          {isAnalyzing && (
+            <p className="text-sm text-amber-700 mb-2 font-medium">
+              Usually 1–2 minutes. Please wait and don’t close this page.
+            </p>
+          )}
+          <p className="text-sm text-gray-600 mb-2">
+            {analyzedCount} of {totalRooms} rooms analyzed
+          </p>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-emerald-600 h-2 rounded-full transition-all"
+              style={{ width: totalRooms ? `${(analyzedCount / totalRooms) * 100}%` : "0%" }}
+            />
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
-          <div className='flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6'>
-            <h3 className='text-xl sm:text-2xl font-bold'>Kitchen</h3>
-            <span className="bg-orange-100 text-orange-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">11 Items</span>
-          </div>
-          <div className="bg-gray-100 h-48 sm:h-64 rounded-lg flex items-center justify-center text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">[Kitchen Photo]</div>
+        {ROOMS.map((room) => {
+          const photo = photos.find((p) => p.roomType === room.id)
+          const result = analysisResults.find((r) => r.roomType === room.id)
+          const thisRoomAnalyzing = isAnalyzing && photo && !result
 
-          <div className="space-y-3 overflow-hidden">
-            <div className="space-y-3">
-              <div className="bg-orange-50 border-l-4 border-orange-500 p-3 sm:p-4 rounded ">
-                <div className="text-sm sm:text-base font-bold mb-1">1. Kitchen</div>
-                <p className="text-xs sm:text-sm">Remove knife block, spray bottles, and keys.</p>
+          return (
+            <div key={room.id} className="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <h3 className="text-xl sm:text-2xl font-bold">
+                  {room.icon} {room.label}
+                </h3>
+                {result?.status === "NEEDS_WORK" && (
+                  <span className="bg-orange-100 text-orange-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">
+                    {result.checklist?.length ?? 0} Items
+                  </span>
+                )}
+                {result?.status === "PASS" && (
+                  <span className="bg-emerald-100 text-emerald-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">
+                    ✓ Ready!
+                  </span>
+                )}
+                {thisRoomAnalyzing && (
+                  <span className="flex items-center gap-2 text-blue-600 text-sm">Analyzing...</span>
+                )}
               </div>
+
+              {photo && (
+                <img
+                  src={photo.url}
+                  alt={room.label}
+                  className="w-full h-48 sm:h-64 object-cover rounded-lg mb-4 sm:mb-6"
+                />
+              )}
+
+              {thisRoomAnalyzing && (
+                <div className="bg-blue-50 border-l-4 border-blue-500 p-3 sm:p-4 rounded flex items-center gap-2">
+                  <span className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent" />
+                  <span>Analyzing this room...</span>
+                </div>
+              )}
+
+              {result?.status === "NEEDS_WORK" && result.narrative && (
+                <div className="space-y-3 mb-4">
+                  <p className="font-semibold">Narrative</p>
+                  <p className="text-sm text-gray-700">{result.narrative}</p>
+                  {result.checklist?.length > 0 && (
+                    <>
+                      <p className="font-semibold">The Checklist:</p>
+                      <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        {result.checklist.map((item, idx) => (
+                          <li key={idx}>{item}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {result?.status === "PASS" && result.verdict && (
+                <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 sm:p-6 rounded">
+                  <h4 className="text-sm sm:text-base font-bold text-emerald-900 mb-2">
+                    ✓ This Room Looks Great!
+                  </h4>
+                  <p className="text-xs sm:text-sm text-emerald-800">{result.verdict}</p>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold">🛋️ Living Room</h3>
-            <span className="bg-emerald-100 text-emerald-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">✓ Ready!</span>
-          </div>
-          <div className="bg-gray-100 h-48 sm:h-64 rounded-lg flex items-center justify-center text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">[Living Room Photo]</div>
-          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 sm:p-6 rounded">
-            <h4 className="text-sm sm:text-base font-bold text-emerald-900 mb-2">✓ This Room Looks Great!</h4>
-            <p className="text-xs sm:text-sm text-emerald-800">Ready for professional photography!</p>
-          </div>
-        </div>
-
-
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold">🛏️ Primary Bedroom</h3>
-            <span className="bg-emerald-100 text-emerald-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">✓ Ready!</span>
-          </div>
-          <div className="bg-gray-100 h-48 sm:h-64 rounded-lg flex items-center justify-center text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">[Pimary Bedroom Photo]</div>
-          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 sm:p-6 rounded">
-            <h4 className="text-sm sm:text-base font-bold text-emerald-900 mb-2">✓ This Room Looks Great!</h4>
-            <p className="text-xs sm:text-sm text-emerald-800">Ready for professional photography!</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold">🚿 Primary Bathroom</h3>
-            <span className="bg-emerald-100 text-emerald-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">✓ Ready!</span>
-          </div>
-          <div className="bg-gray-100 h-48 sm:h-64 rounded-lg flex items-center justify-center text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">[Primary Bathroom Photo]</div>
-          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 sm:p-6 rounded">
-            <h4 className="text-sm sm:text-base font-bold text-emerald-900 mb-2">✓ This Room Looks Great!</h4>
-            <p className="text-xs sm:text-sm text-emerald-800">Ready for professional photography!</p>
-          </div>
-        </div>
+          )
+        })}
       </div>
     </div>
   )

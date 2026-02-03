@@ -1,86 +1,11 @@
-// import React from 'react'
-// import { LuLightbulb } from "react-icons/lu";
-// import { useState, useRef } from 'react';
-
-// const UploadPhotos = () => {
-//   const fileInputRef = useRef(null);
-//   const [imageFile, setImageFile] = useState(null);
-//   const [previewUrl, setPreviewUrl] = useState(null);
-
-//   const handleFileChange = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       if (file.size > 5 * 1024 * 1024) {
-//         toast.error("File size should be less than 5MB");
-//         return;
-//       }
-//       setImageFile(file);
-//       setPreviewUrl(URL.createObjectURL(file));
-//     }
-//   };
-
-//   return (
-//     <div className='max-w-7xl mx-auto px-6 py-8 pb-32'>
-//       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
-//         <h2 className='text-2xl sm:text-3xl font-semibold mb-2'>Upload Property Photos</h2>
-//         <p className='text-sm sm:text-base text-gray-600 mb-6 sm:mb-8'>123 Maple Street, Omaha, NE 68102</p>
-
-//         <div className="bg-emerald-50 border-l-4 border-emerald-500 p-3 sm:p-4 rounded mb-6 sm:mb-8">
-//           <p className="text-xs sm:text-sm text-emerald-900 flex items-center gap-2"><LuLightbulb className='text-red-500' />
-//             <span className='font-bold'>Tip: </span>
-//             <span>Take photos from the doorway or corner for the best analysis.</span>
-//           </p>
-//         </div>
-//         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-//           <div className='relative'>
-//             <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center" >
-//               <div className="flex flex-col items-center justify-center h-full">
-//                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🍳</div>
-//                 <div className="text-sm sm:text-base font-bold mb-1">Kitchen</div>
-//                 <div className="text-xs sm:text-sm text-gray-500" onClick={() => fileInputRef.current.click()}>Click to upload</div>
-//               </div>
-//             </label>
-//           </div>
-//           <div className='relative'>
-//             <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center" >
-//               <div className="flex flex-col items-center justify-center h-full">
-//                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🛋️</div>
-//                 <div className="text-sm sm:text-base font-bold mb-1">Living Room</div>
-//                 <div className="text-xs sm:text-sm text-gray-500" onClick={() => fileInputRef.current.click()}>Click to upload</div>
-//               </div>
-//             </label>
-//           </div>
-//           <div className='relative'>
-//             <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center" >
-//               <div className="flex flex-col items-center justify-center h-full">
-//                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🛏️</div>
-//                 <div className="text-sm sm:text-base font-bold mb-1">Primary Bedroom</div>
-//                 <div className="text-xs sm:text-sm text-gray-500" onClick={() => fileInputRef.current.click()}>Click to upload</div>
-//               </div>
-//             </label>
-//           </div>
-//           <div className='relative'>
-//             <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center" >
-//               <div className="flex flex-col items-center justify-center h-full">
-//                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🚿</div>
-//                 <div className="text-sm sm:text-base font-bold mb-1">Primary Bathroom</div>
-//                 <div className="text-xs sm:text-sm text-gray-500" onClick={() => fileInputRef.current.click()}>Click to upload</div>
-//               </div>
-//             </label>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default UploadPhotos
-
-import React, { useState, useRef } from "react"
+import React, { useRef, useEffect, useCallback } from "react"
 import { useParams } from "react-router-dom"
 import { LuLightbulb } from "react-icons/lu"
+import { HiExclamationCircle } from "react-icons/hi"
 import toast from "react-hot-toast"
-import { useGetPropertyByUploadTokenQuery, useUploadPhotoMutation,} from "../../redux/api/propertyApi"
+import { useGetPropertyByUploadTokenQuery, useUploadPhotoMutation } from "../../redux/api/propertyApi"
+import { useStepNavigation } from "../context/StepNavigationContext.jsx"
+import { useNavigate } from "react-router-dom"
 
 const ROOMS = [
   { id: "kitchen", label: "Kitchen", icon: "🍳" },
@@ -89,21 +14,32 @@ const ROOMS = [
   { id: "primary-bathroom", label: "Primary Bathroom", icon: "🚿" },
 ]
 
-const MAX_SIZE = 5 * 1024 * 1024 
+const MAX_SIZE = 5 * 1024 * 1024
 
 const UploadPhotos = () => {
+  const { registerNext } = useStepNavigation()
   const { token } = useParams()
+  const navigate = useNavigate()
   const [uploadPhoto, { isLoading: isUploading }] = useUploadPhotoMutation()
-  const { data, isLoading, isError } = useGetPropertyByUploadTokenQuery(token, {
+  const { data, isLoading, isError, refetch } = useGetPropertyByUploadTokenQuery(token, {
     skip: !token,
   })
   const fileInputRefs = useRef({})
 
   const address = data?.address ?? ""
   const photos = data?.photos ?? []
+  const analysisResults = data?.analysisResults ?? []
+  const needsReuploadRoomIds = analysisResults
+    .filter((r) => r.status === "NEEDS_WORK")
+    .map((r) => r.roomType)
+  const showReuploadBanner = needsReuploadRoomIds.length > 0
 
-  const getPhotoForRoom = (roomId) =>
-    photos.find((p) => p.roomType === roomId)
+  const getPhotoForRoom = (roomId) => photos.find((p) => p.roomType === roomId)
+
+  const handleGoToAnalysis = useCallback(() => {
+    if (!token) return
+    navigate(`/analysis/${token}`)
+  }, [token, navigate])
 
   const handleFileChange = async (e, roomId) => {
     const file = e.target.files?.[0]
@@ -130,6 +66,10 @@ const UploadPhotos = () => {
     e.target.value = ""
   }
 
+  useEffect(() => {
+    registerNext(handleGoToAnalysis)
+  }, [registerNext, handleGoToAnalysis])
+
   if (!token) {
     return (
       <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
@@ -154,6 +94,8 @@ const UploadPhotos = () => {
     )
   }
 
+  const user = data?.user
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
@@ -163,6 +105,21 @@ const UploadPhotos = () => {
         <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
           {address || "—"}
         </p>
+
+        {user && (
+          <p className="text-sm text-gray-600 mb-4">
+            Realtor: {user.name} • Phone: {user.phoneNo || "—"}
+          </p>
+        )}
+
+        {showReuploadBanner && (
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-3 sm:p-4 rounded mb-6 flex items-start gap-2">
+            <HiExclamationCircle className="text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-xs sm:text-sm text-amber-900">
+              Some photos need to be re-uploaded. Please upload new photos for the rooms marked with &apos;Reupload Required&apos;.
+            </p>
+          </div>
+        )}
 
         <div className="bg-emerald-50 border-l-4 border-emerald-500 p-3 sm:p-4 rounded mb-6 sm:mb-8">
           <p className="text-xs sm:text-sm text-emerald-900 flex items-center gap-2">
@@ -175,8 +132,19 @@ const UploadPhotos = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {ROOMS.map((room) => {
             const photo = getPhotoForRoom(room.id)
+            const needsReupload = needsReuploadRoomIds.includes(room.id)
             return (
-              <div key={room.id} className="relative">
+              <div
+                key={room.id}
+                className={`relative rounded-xl overflow-hidden ${
+                  needsReupload ? "ring-2 ring-red-400 ring-dashed" : ""
+                }`}
+              >
+                {needsReupload && (
+                  <div className="absolute top-2 right-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+                    Reupload Required
+                  </div>
+                )}
                 <input
                   type="file"
                   accept="image/*"
@@ -190,17 +158,23 @@ const UploadPhotos = () => {
                   onClick={() => fileInputRefs.current[room.id]?.click()}
                 >
                   {photo ? (
-                    <img
-                      src={photo.url}
-                      alt={room.label}
-                      className="w-full h-full object-cover absolute inset-0"
-                    />
+                    <>
+                      <img
+                        src={photo.url}
+                        alt={room.label}
+                        className="w-full h-full object-cover absolute inset-0"
+                      />
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-2 text-emerald-700 text-xs font-medium bg-white/90 py-1 rounded">
+                        <span>✓</span>
+                        <span>Ready to Upload</span>
+                      </div>
+                    </>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full">
                       <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">{room.icon}</div>
                       <div className="text-sm sm:text-base font-bold mb-1">{room.label}</div>
                       <div className="text-xs sm:text-sm text-gray-500">
-                        {isUploading ? "Uploading..." : "Click to upload"}
+                        {isUploading ? "Uploading..." : "Click to upload new photo"}
                       </div>
                     </div>
                   )}
@@ -215,4 +189,3 @@ const UploadPhotos = () => {
 }
 
 export default UploadPhotos
-

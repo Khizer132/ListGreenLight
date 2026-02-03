@@ -27,7 +27,7 @@ const App = () => {
         </Route>
         <Route path="/upload-photos/:token" element={<UploadPhotos />} >
         </Route>
-        <Route path="/analysis" element={<Analysis />} >
+        <Route path="/analysis/:token" element={<Analysis />} >
         </Route>
         <Route path="/final-approval" element={<Approval />} >
         </Route>

@@ -4,7 +4,7 @@ export const steps = [
   "/payment",
   "/upload-link-sent",
   "/upload-photos/:token",
-  "/analysis",
+  "/analysis/:token",
   "/final-approval",
 ];
 
