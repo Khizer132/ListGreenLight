@@ -1,5 +1,8 @@
 import React from 'react'
-import { IoPaperPlaneOutline } from "react-icons/io5";
+import { MdAdjust } from "react-icons/md";
+import { MdOutlineCheck } from "react-icons/md";
+
+
 
 const Approval = () => {
   return (
@@ -18,7 +21,7 @@ const Approval = () => {
             </label>
           </div>
           <div className='relative'>
-             <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center" >
+            <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center" >
               <div className="flex flex-col items-center justify-center h-full">
                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🛋️</div>
                 <div className="text-sm sm:text-base font-bold mb-1">Living Room</div>
@@ -46,7 +49,16 @@ const Approval = () => {
           </div>
         </div>
 
-        <button className="w-full bg-emerald-600 text-white py-3 sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"><IoPaperPlaneOutline />  Submit for Final Feedback</button>
+        <h2 className='font-bold mb-4 text-center text-xl'>Final Approval (Only for Realtor)</h2>
+
+        <div className='flex gap-2 items-center justify-center '>
+          <button className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"><MdOutlineCheck className='size-6'/>  GreenLight Approval</button>
+          <button className="px-12 py-6 bg-yellow-400 text-white sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2"><MdAdjust />  Minor Adjusments</button>
+          <button className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"><MdOutlineCheck className='size-6' />  Good as is</button>
+        </div>
+
+
+
       </div>
     </div>
   )

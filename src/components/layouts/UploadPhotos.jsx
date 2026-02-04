@@ -32,14 +32,23 @@ const UploadPhotos = () => {
   const needsReuploadRoomIds = analysisResults
     .filter((r) => r.status === "NEEDS_WORK")
     .map((r) => r.roomType)
+
   const showReuploadBanner = needsReuploadRoomIds.length > 0
 
   const getPhotoForRoom = (roomId) => photos.find((p) => p.roomType === roomId)
 
   const handleGoToAnalysis = useCallback(() => {
     if (!token) return
+
+    const missingRooms = ROOMS.filter((room) => !getPhotoForRoom(room.id)).map((r) => r.label)
+
+    if (missingRooms.length > 0) {
+      toast.error(`Please upload photos for: ${missingRooms.join(", ")}`)
+      return
+    }
+
     navigate(`/analysis/${token}`)
-  }, [token, navigate])
+  }, [token, navigate, photos])
 
   const handleFileChange = async (e, roomId) => {
     const file = e.target.files?.[0]
@@ -99,12 +108,8 @@ const UploadPhotos = () => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-2">
-          Upload Property Photos
-        </h2>
-        <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
-          {address || "—"}
-        </p>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-2">Upload Property Photos</h2>
+        <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">{address || "—"}</p>
 
         {user && (
           <p className="text-sm text-gray-600 mb-4">
@@ -114,9 +119,10 @@ const UploadPhotos = () => {
 
         {showReuploadBanner && (
           <div className="bg-amber-50 border-l-4 border-amber-500 p-3 sm:p-4 rounded mb-6 flex items-start gap-2">
-            <HiExclamationCircle className="text-amber-600 flex-shrink-0 mt-0.5" />
+            <HiExclamationCircle className="text-amber-600 shrink-0 mt-0.5" />
             <p className="text-xs sm:text-sm text-amber-900">
-              Some photos need to be re-uploaded. Please upload new photos for the rooms marked with &apos;Reupload Required&apos;.
+              Some photos need to be re-uploaded. Please upload new photos for the rooms marked with
+              &apos;Reupload Required&apos;.
             </p>
           </div>
         )}
@@ -164,10 +170,6 @@ const UploadPhotos = () => {
                         alt={room.label}
                         className="w-full h-full object-cover absolute inset-0"
                       />
-                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-2 text-emerald-700 text-xs font-medium bg-white/90 py-1 rounded">
-                        <span>✓</span>
-                        <span>Ready to Upload</span>
-                      </div>
                     </>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full">

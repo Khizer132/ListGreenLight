@@ -31,7 +31,9 @@ const Analysis = () => {
   const hasTriggeredAnalyze = useRef(false)
 
   useEffect(() => {
-    if (analysisStatus === "failed") hasTriggeredAnalyze.current = false
+    if (analysisStatus === "failed" || analysisStatus === "pending") {
+      hasTriggeredAnalyze.current = false
+    }
   }, [analysisStatus])
 
   useEffect(() => {
@@ -55,14 +57,11 @@ const Analysis = () => {
   }, [isAnalyzing, token, refetch])
 
   const handleNext = useCallback(() => {
-    
     const needsWork = analysisResults.some((r) => r.status === "NEEDS_WORK")
 
     if (needsWork && token) {
       navigate(`/upload-photos/${token}`)
-    }
-      
-    else {
+    } else {
       navigate("/final-approval")
     }
   }, [analysisResults, token, navigate])
@@ -105,8 +104,11 @@ const Analysis = () => {
           {isAnalyzing && (
             <p className="text-sm text-amber-700 mb-2 font-medium">
               Usually 1–2 minutes. Please wait and don’t close this page.
+              <span className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent" />
             </p>
+        
           )}
+          
           <p className="text-sm text-gray-600 mb-2">
             {analyzedCount} of {totalRooms} rooms analyzed
           </p>

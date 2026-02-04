@@ -9,6 +9,7 @@ import UploadPhotos from './components/layouts/UploadPhotos'
 import SendUploadLink from './components/layouts/SendUploadLink'
 import Analysis from './components/layouts/Analysis'
 import Approval from './components/layouts/Approval'
+import Approved from './components/layouts/Approved'
 
 const App = () => {
   return (
@@ -33,6 +34,10 @@ const App = () => {
         </Route>
       </Routes>
       <Footer />
+      <Routes>
+        <Route path="/approved" element={<Approved />} >
+        </Route>
+      </Routes>
       
     </div>
   )
