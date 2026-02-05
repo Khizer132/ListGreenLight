@@ -1,4 +1,5 @@
-import React, { useEffect, useCallback, useRef } from "react"
+
+import React, { useEffect, useCallback, useRef, useState } from "react"  // add useState
 import { useParams, useNavigate } from "react-router-dom"
 import { useGetPropertyByUploadTokenQuery, useAnalyzePhotosMutation } from "../../redux/api/propertyApi"
 import { useStepNavigation } from "../context/StepNavigationContext.jsx"
@@ -11,6 +12,7 @@ const ROOMS = [
 ]
 
 const Analysis = () => {
+
   const { token } = useParams()
   const navigate = useNavigate()
   const { registerNext } = useStepNavigation()
@@ -29,6 +31,21 @@ const Analysis = () => {
   const isAnalyzing = analysisStatus === "analyzing" || analyzing
   const isComplete = analysisStatus === "completed"
   const hasTriggeredAnalyze = useRef(false)
+
+  
+  const [lightbox, setLightbox] = useState({ open: false, url: "", roomLabel: "" })
+  const closeLightbox = useCallback(() => setLightbox({ open: false, url: "", roomLabel: "" }), [])
+
+  
+  useEffect(() => {
+    if (!lightbox.open) 
+      return
+    const onKey = (e) => {
+      if (e.key === "Escape") closeLightbox()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [lightbox.open, closeLightbox])
 
   useEffect(() => {
     if (analysisStatus === "failed" || analysisStatus === "pending") {
@@ -106,9 +123,8 @@ const Analysis = () => {
               Usually 1–2 minutes. Please wait and don’t close this page.
               <span className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent" />
             </p>
-        
           )}
-          
+
           <p className="text-sm text-gray-600 mb-2">
             {analyzedCount} of {totalRooms} rooms analyzed
           </p>
@@ -147,11 +163,18 @@ const Analysis = () => {
               </div>
 
               {photo && (
-                <img
-                  src={photo.url}
-                  alt={room.label}
-                  className="w-full h-48 sm:h-64 object-cover rounded-lg mb-4 sm:mb-6"
-                />
+                <button
+                  type="button"
+                  onClick={() => setLightbox({ open: true, url: photo.url, roomLabel: room.label })}
+                  className="w-full focus:outline-none"
+                  aria-label={`View ${room.label} photo full size`}
+                >
+                  <img
+                    src={photo.url}
+                    alt={room.label}
+                    className="w-full h-48 sm:h-64 object-cover rounded-lg mb-4 sm:mb-6 transition-transform duration-150 hover:scale-[1.01]"
+                  />
+                </button>
               )}
 
               {thisRoomAnalyzing && (
@@ -190,6 +213,31 @@ const Analysis = () => {
           )
         })}
       </div>
+
+      {/* Lightbox modal */}
+      {lightbox.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4" onClick={closeLightbox}>
+          <div
+            className="relative max-w-5xl w-full"
+            onClick={(e) => e.stopPropagation()} // prevent closing when clicking image
+          >
+            <button
+              type="button"
+              onClick={closeLightbox}
+              className="absolute -top-10 right-0 text-white text-2xl font-bold px-3 py-1"
+              aria-label="Close full-size photo"
+            >
+              ×
+            </button>
+            <div className="text-white mb-2 text-center font-semibold">{lightbox.roomLabel}</div>
+            <img
+              src={lightbox.url}
+              alt={lightbox.roomLabel || "Room photo"}
+              className="w-full max-h-[80vh] object-contain rounded-lg shadow-2xl bg-black"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
