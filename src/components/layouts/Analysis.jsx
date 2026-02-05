@@ -1,5 +1,5 @@
 
-import React, { useEffect, useCallback, useRef, useState } from "react"  // add useState
+import React, { useEffect, useCallback, useRef, useState } from "react" 
 import { useParams, useNavigate } from "react-router-dom"
 import { useGetPropertyByUploadTokenQuery, useAnalyzePhotosMutation } from "../../redux/api/propertyApi"
 import { useStepNavigation } from "../context/StepNavigationContext.jsx"
@@ -32,9 +32,18 @@ const Analysis = () => {
   const isComplete = analysisStatus === "completed"
   const hasTriggeredAnalyze = useRef(false)
 
-  
-  const [lightbox, setLightbox] = useState({ open: false, url: "", roomLabel: "" })
-  const closeLightbox = useCallback(() => setLightbox({ open: false, url: "", roomLabel: "" }), [])
+  const allRoomsPassed = isComplete && analysisResults.length > 0 && analysisResults.every((r) => r.status === "PASS");
+
+  const [lightbox, setLightbox] = useState({ 
+    open: false, 
+    url: "", 
+    roomLabel: ""
+   })
+  const closeLightbox = useCallback(() => setLightbox({ 
+    open: false, 
+    url: "", 
+    roomLabel: "" 
+  }), [])
 
   
   useEffect(() => {
@@ -73,11 +82,20 @@ const Analysis = () => {
     return () => clearInterval(interval)
   }, [isAnalyzing, token, refetch])
 
+
+  useEffect(() => {
+    if (allRoomsPassed) {
+      localStorage.setItem("lg_cannot_go_back", "true")
+    }
+  }, [allRoomsPassed])
+
   const handleNext = useCallback(() => {
     const needsWork = analysisResults.some((r) => r.status === "NEEDS_WORK")
 
     if (needsWork && token) {
       navigate(`/upload-photos/${token}`)
+    } else if (token) {
+      navigate(`/final-approval?token=${token}`)
     } else {
       navigate("/final-approval")
     }
@@ -214,12 +232,11 @@ const Analysis = () => {
         })}
       </div>
 
-      {/* Lightbox modal */}
       {lightbox.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4" onClick={closeLightbox}>
           <div
             className="relative max-w-5xl w-full"
-            onClick={(e) => e.stopPropagation()} // prevent closing when clicking image
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
