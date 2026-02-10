@@ -76,7 +76,8 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto flex justify-between items-center gap-2 sm:gap-4">
           <button
             onClick={goPrevious}
-            className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold
+            
+            className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer
             ${
               currentIndex === 0
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
@@ -93,7 +94,7 @@ const Footer = () => {
           <button
             onClick={triggerNext}
             disabled={currentIndex === steps.length - 1}
-            className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold
+            className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer
             ${
               currentIndex === steps.length - 1
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"

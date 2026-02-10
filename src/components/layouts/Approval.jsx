@@ -20,9 +20,11 @@ const Approval = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [sendApprovalEmail, { isLoading }] = useSendApprovalEmailMutation()
+  // const [showApprovedState, setShowApprovedState] = useState(false)
 
   const searchParams = new URLSearchParams(location.search)
   const token = searchParams.get("token")
+
 
   const { data, isLoading: loadingProperty, isError } = useGetPropertyByUploadTokenQuery(token, {
     skip: !token,
@@ -161,7 +163,7 @@ const Approval = () => {
 
         <div className="flex gap-2 items-center justify-center">
           <button
-            className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+            className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             onClick={handleFinalApprovalClick}
             disabled={isLoading}
           >
@@ -170,7 +172,7 @@ const Approval = () => {
           </button>
 
           <button
-            className="px-12 py-6 bg-yellow-400 text-white sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2"
+            className="px-12 py-6 bg-yellow-400 text-white sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             onClick={() => setShowFeedbackPopUp(true)}
           >
             <MdAdjust />
@@ -178,7 +180,7 @@ const Approval = () => {
           </button>
 
           <button
-            className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+            className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             onClick={handleFinalApprovalClick}
             disabled={isLoading}
           >
@@ -191,7 +193,7 @@ const Approval = () => {
       <AdjustmentPopUp isOpen={showFeedbackPopUp} onClose={() => setShowFeedbackPopUp(false)} token={token} />
 
       {lightbox.open && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 px-4" onClick={closeLightbox}>
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/80 px-4" onClick={closeLightbox}>
           <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"

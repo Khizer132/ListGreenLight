@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react"
+import React, { useRef, useEffect, useCallback, useState } from "react"
 import { useParams } from "react-router-dom"
 import { LuLightbulb } from "react-icons/lu"
 import { HiExclamationCircle } from "react-icons/hi"
@@ -25,6 +25,7 @@ const UploadPhotos = () => {
     skip: !token,
   })
   const fileInputRefs = useRef({})
+  const [uploadingRoomId, setUploadingRoomId] = useState(null)
 
   const address = data?.address ?? ""
   const photos = data?.photos ?? []
@@ -61,18 +62,23 @@ const UploadPhotos = () => {
       toast.error("Invalid link")
       return
     }
+
     const formData = new FormData()
     formData.append("photo", file)
     formData.append("token", token)
     formData.append("roomType", roomId)
+
     try {
+      setUploadingRoomId(roomId)
       await uploadPhoto(formData).unwrap()
       toast.success("Photo saved")
       refetch()
     } catch (err) {
       toast.error(err?.data?.message || "Upload failed")
+    } finally {
+      setUploadingRoomId(null)
+      e.target.value = ""
     }
-    e.target.value = ""
   }
 
   useEffect(() => {
@@ -139,12 +145,12 @@ const UploadPhotos = () => {
           {ROOMS.map((room) => {
             const photo = getPhotoForRoom(room.id)
             const needsReupload = needsReuploadRoomIds.includes(room.id)
+            const isRoomUploading = isUploading && uploadingRoomId === room.id
             return (
               <div
                 key={room.id}
-                className={`relative rounded-xl overflow-hidden ${
-                  needsReupload ? "ring-2 ring-red-400 ring-dashed" : ""
-                }`}
+                className={`relative rounded-xl overflow-hidden ${needsReupload ? "ring-2 ring-red-400 ring-dashed" : ""
+                  }`}
               >
                 {needsReupload && (
                   <div className="absolute top-2 right-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
@@ -157,10 +163,10 @@ const UploadPhotos = () => {
                   className="hidden"
                   ref={(el) => (fileInputRefs.current[room.id] = el)}
                   onChange={(e) => handleFileChange(e, room.id)}
-                  disabled={isUploading}
+                  disabled={isRoomUploading}
                 />
                 <label
-                  className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center"
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer relative overflow-hidden h-75 sm:h-85 flex flex-col justify-center"
                   onClick={() => fileInputRefs.current[room.id]?.click()}
                 >
                   {photo && !needsReupload ? (
@@ -181,7 +187,7 @@ const UploadPhotos = () => {
                       <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">{room.icon}</div>
                       <div className="text-sm sm:text-base font-bold mb-1">{room.label}</div>
                       <div className="text-xs sm:text-sm text-gray-500">
-                        {isUploading ? "Uploading..." : "Click to upload new photo"}
+                        {isRoomUploading ? "Uploading..." : "Click to upload new photo"}
                       </div>
                     </div>
                   )}

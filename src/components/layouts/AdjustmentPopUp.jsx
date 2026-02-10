@@ -32,7 +32,7 @@ const AdjustmentPopUp = ({ isOpen, onClose, token }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-lg font-bold mb-2">Minor Adjustments</h3>
         <p className="text-sm text-gray-600 mb-4">
@@ -41,7 +41,7 @@ const AdjustmentPopUp = ({ isOpen, onClose, token }) => {
 
         <form onSubmit={submit}>
           <textarea
-            className="w-full border border-gray-300 rounded-lg p-3 text-sm min-h-[130px]"
+            className="w-full border border-gray-300 rounded-lg p-3 text-sm min-h-32.5"
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="Write your feedback..."

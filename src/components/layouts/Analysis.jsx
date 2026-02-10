@@ -246,7 +246,7 @@ const Analysis = () => {
 
       {lightbox.open && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 px-4"
+          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/80 px-4"
           onClick={closeLightbox}
         >
           <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
