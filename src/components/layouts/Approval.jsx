@@ -94,7 +94,6 @@ const Approval = () => {
         <h2 className="font-bold mb-2 text-center text-xl">Final Approval (Only for Realtor)</h2>
         <p className="text-sm text-gray-600 text-center mb-6">{address || "—"}</p>
 
-        {/* RESULTS ABOVE BUTTONS */}
         <div className="mb-8 space-y-4">
           <h3 className="text-lg font-semibold">Final Results</h3>
 
@@ -160,7 +159,6 @@ const Approval = () => {
           })}
         </div>
 
-        {/* BUTTONS */}
         <div className="flex gap-2 items-center justify-center">
           <button
             className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
@@ -190,10 +188,8 @@ const Approval = () => {
         </div>
       </div>
 
-      {/* FEEDBACK POPUP */}
       <AdjustmentPopUp isOpen={showFeedbackPopUp} onClose={() => setShowFeedbackPopUp(false)} token={token} />
 
-      {/* IMAGE LIGHTBOX */}
       {lightbox.open && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 px-4" onClick={closeLightbox}>
           <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>

@@ -47,7 +47,6 @@ const Footer = () => {
     const onFinalApproval = location.pathname === "/final-approval"
     const onUploadPhotos = location.pathname.includes("/upload-photos/")
 
-    // popup on upload-photos, and when locked/final approval
     if (lock || onFinalApproval || onUploadPhotos) {
       setShowRestartDialog(true)
       return

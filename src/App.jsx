@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import UserInfo from './components/layouts/UserInfo'
 import Navbar from './components/Navbar'
@@ -12,14 +12,15 @@ import Approval from './components/layouts/Approval'
 import Approved from './components/layouts/Approved'
 
 const App = () => {
+  const location = useLocation()
+  const isApprovedPage = location.pathname === '/approved'
+
   return (
     <div className='bg-gray-50'>
-      <Navbar />
+      {!isApprovedPage && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />}>
         </Route>
-        {/* <Route path="/" element={<GetStatedPanel />}>
-        </Route> */}
         <Route path="/user-info" element={<UserInfo />} >
         </Route>
         <Route path="/payment" element={<Payment />} >
@@ -32,12 +33,10 @@ const App = () => {
         </Route>
         <Route path="/final-approval" element={<Approval />} >
         </Route>
-      </Routes>
-      <Footer />
-      <Routes>
         <Route path="/approved" element={<Approved />} >
         </Route>
       </Routes>
+      {!isApprovedPage && <Footer />}
       
     </div>
   )
