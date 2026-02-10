@@ -58,8 +58,15 @@ export const propertyApi = createApi({
         method: "POST",
         body,
       }),
-    })
+    }),
+    sendFeedback: builder.mutation({
+      query: (body) => ({
+        url: "/send-feedback",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 })
 
-export const { useCreatePropertyMutation, useGetUploadLinkQuery, useLazyGetUploadLinkQuery, useGetPropertyByUploadTokenQuery, useConfirmPaymentAndGetUploadLinkMutation, useUploadPhotoMutation, useAnalyzePhotosMutation, useSendApprovalEmailMutation } = propertyApi;
+export const { useCreatePropertyMutation, useGetUploadLinkQuery, useLazyGetUploadLinkQuery, useGetPropertyByUploadTokenQuery, useConfirmPaymentAndGetUploadLinkMutation, useUploadPhotoMutation, useAnalyzePhotosMutation, useSendApprovalEmailMutation, useSendFeedbackMutation } = propertyApi;

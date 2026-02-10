@@ -1,5 +1,4 @@
-
-import React, { useEffect, useCallback, useRef, useState } from "react" 
+import React, { useEffect, useCallback, useRef, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useGetPropertyByUploadTokenQuery, useAnalyzePhotosMutation } from "../../redux/api/propertyApi"
 import { useStepNavigation } from "../context/StepNavigationContext.jsx"
@@ -12,7 +11,6 @@ const ROOMS = [
 ]
 
 const Analysis = () => {
-
   const { token } = useParams()
   const navigate = useNavigate()
   const { registerNext } = useStepNavigation()
@@ -32,23 +30,30 @@ const Analysis = () => {
   const isComplete = analysisStatus === "completed"
   const hasTriggeredAnalyze = useRef(false)
 
-  const allRoomsPassed = isComplete && analysisResults.length > 0 && analysisResults.every((r) => r.status === "PASS");
+  const allRoomsPassed =
+    isComplete && analysisResults.length > 0 && analysisResults.every((r) => r.status === "PASS")
 
-  const [lightbox, setLightbox] = useState({ 
-    open: false, 
-    url: "", 
-    roomLabel: ""
-   })
-  const closeLightbox = useCallback(() => setLightbox({ 
-    open: false, 
-    url: "", 
-    roomLabel: "" 
-  }), [])
+  const [lightbox, setLightbox] = useState({
+    open: false,
+    url: "",
+    roomLabel: "",
+  })
 
-  
+  const closeLightbox = useCallback(() => {
+    setLightbox({ open: false, url: "", roomLabel: "" })
+  }, [])
+
   useEffect(() => {
-    if (!lightbox.open) 
-      return
+    if (!lightbox.open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [lightbox.open])
+
+  useEffect(() => {
+    if (!lightbox.open) return
     const onKey = (e) => {
       if (e.key === "Escape") closeLightbox()
     }
@@ -67,6 +72,7 @@ const Analysis = () => {
     if (analysisStatus !== "pending" && analysisStatus !== "failed") return
     if (hasTriggeredAnalyze.current) return
     hasTriggeredAnalyze.current = true
+
     triggerAnalyze({ token })
       .then(() => refetch())
       .catch(() => {
@@ -81,7 +87,6 @@ const Analysis = () => {
     }
     return () => clearInterval(interval)
   }, [isAnalyzing, token, refetch])
-
 
   useEffect(() => {
     if (allRoomsPassed) {
@@ -131,11 +136,13 @@ const Analysis = () => {
             </p>
           </div>
         )}
+
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           <h2 className="text-2xl sm:text-3xl font-bold mb-2">
             {isComplete ? "Analysis complete" : "Analyzing Your Photos..."}
           </h2>
           <p className="text-sm sm:text-base text-gray-600 mb-2">{address || "—"}</p>
+
           {isAnalyzing && (
             <p className="text-sm text-amber-700 mb-2 font-medium">
               Usually 1–2 minutes. Please wait and don’t close this page.
@@ -165,16 +172,19 @@ const Analysis = () => {
                 <h3 className="text-xl sm:text-2xl font-bold">
                   {room.icon} {room.label}
                 </h3>
+
                 {result?.status === "NEEDS_WORK" && (
                   <span className="bg-orange-100 text-orange-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">
                     {result.checklist?.length ?? 0} Items
                   </span>
                 )}
+
                 {result?.status === "PASS" && (
                   <span className="bg-emerald-100 text-emerald-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit">
                     ✓ Ready!
                   </span>
                 )}
+
                 {thisRoomAnalyzing && (
                   <span className="flex items-center gap-2 text-blue-600 text-sm">Analyzing...</span>
                 )}
@@ -191,6 +201,7 @@ const Analysis = () => {
                     src={photo.url}
                     alt={room.label}
                     className="w-full h-48 sm:h-64 object-cover rounded-lg mb-4 sm:mb-6 transition-transform duration-150 hover:scale-[1.01]"
+                    draggable={false}
                   />
                 </button>
               )}
@@ -206,6 +217,7 @@ const Analysis = () => {
                 <div className="space-y-3 mb-4">
                   <p className="font-semibold">Narrative</p>
                   <p className="text-sm text-gray-700">{result.narrative}</p>
+
                   {result.checklist?.length > 0 && (
                     <>
                       <p className="font-semibold">The Checklist:</p>
@@ -233,24 +245,27 @@ const Analysis = () => {
       </div>
 
       {lightbox.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4" onClick={closeLightbox}>
-          <div
-            className="relative max-w-5xl w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 px-4"
+          onClick={closeLightbox}
+        >
+          <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={closeLightbox}
-              className="absolute -top-10 right-0 text-white text-2xl font-bold px-3 py-1"
+              className="absolute -top-10 right-0 text-white text-3xl font-bold px-3 py-1"
               aria-label="Close full-size photo"
             >
               ×
             </button>
+
             <div className="text-white mb-2 text-center font-semibold">{lightbox.roomLabel}</div>
+
             <img
               src={lightbox.url}
               alt={lightbox.roomLabel || "Room photo"}
               className="w-full max-h-[80vh] object-contain rounded-lg shadow-2xl bg-black"
+              draggable={false}
             />
           </div>
         </div>

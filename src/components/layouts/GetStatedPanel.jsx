@@ -62,7 +62,7 @@ const GetStatedPanel = () => {
                     </div>
                     <button
                         onClick={handleNext}
-                        className=" w-full px-30 bg-emerald-600 text-white py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg hover:bg-emerald-700" >
+                        className="block w-full bg-emerald-600 text-white py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg hover:bg-emerald-700" >
                         Get Started - $19.99
                     </button>
                     <span className='flex items-center justify-center gap-2 mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600' >🛡️  100% Money-Back Guarantee</span>
