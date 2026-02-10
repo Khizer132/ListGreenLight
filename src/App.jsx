@@ -35,6 +35,7 @@ const App = () => {
         </Route>
         <Route path="/approved" element={<Approved />} >
         </Route>
+
       </Routes>
       {!isApprovedPage && <Footer />}
       

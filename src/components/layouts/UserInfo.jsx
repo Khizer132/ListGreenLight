@@ -22,7 +22,6 @@ const UserInfo = () => {
 
   const [createProperty, { isLoading }] = useCreatePropertyMutation()
 
-  // Your slice is mounted at state.user
   const { name, email, phoneNo } = useSelector((state) => state.user.user)
   const { address } = useSelector((state) => state.user.property)
 
@@ -38,9 +37,36 @@ const UserInfo = () => {
     [dispatch]
   )
 
+  // Gmail-only validator
+  const isGmail = (em) => {
+    if (!em) return false
+    return /^[A-Za-z0-9._%+-]+@gmail\.com$/i.test(em.trim())
+  }
+
+  // US phone validator: accepts 10-digit or 11-digit with leading '1', common formatting
+  const isUSPhone = (ph) => {
+    if (!ph) return false
+    let cleaned = ph.replace(/[^\d]/g, "")
+    if (cleaned.length === 11 && cleaned.startsWith("1")) {
+      cleaned = cleaned.slice(1)
+    }
+    // enforce NANP rules for area/exchange code start (2-9)
+    return /^[2-9]\d{2}[2-9]\d{2}\d{4}$/.test(cleaned)
+  }
+
   const handleNext = useCallback(async () => {
     if (!name || !email || !phoneNo || !address) {
       toast.error("Please fill in all fields")
+      return
+    }
+
+    if (!isGmail(email)) {
+      toast.error("Please enter a valid Gmail address (example@gmail.com)")
+      return
+    }
+
+    if (!isUSPhone(phoneNo)) {
+      toast.error("Please enter a valid US phone number")
       return
     }
 
@@ -111,7 +137,7 @@ const UserInfo = () => {
               type="text"
               name="email"
               value={email}
-              placeholder="Enter email address"
+              placeholder="example@gmail.com"
               className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border-2 border-gray-300 rounded-lg bg-white"
               onChange={handleChange}
               disabled={isLoading}

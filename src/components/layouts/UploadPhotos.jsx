@@ -163,7 +163,7 @@ const UploadPhotos = () => {
                   className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-500 cursor-pointer block relative overflow-hidden h-[300px] sm:h-[340px] flex flex-col justify-center"
                   onClick={() => fileInputRefs.current[room.id]?.click()}
                 >
-                  {photo ? (
+                  {photo && !needsReupload ? (
                     <>
                       <img
                         src={photo.url}
@@ -171,6 +171,11 @@ const UploadPhotos = () => {
                         className="w-full h-full object-cover absolute inset-0"
                       />
                     </>
+                  ) : needsReupload ? (
+                    <div className="flex flex-col items-center justify-center h-full px-4 text-center">
+                      <div className="text-lg sm:text-xl font-bold mb-2 text-gray-700">{room.label}</div>
+                      <div className="text-xs text-gray-500">Click to upload or replace</div>
+                    </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full">
                       <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">{room.icon}</div>
