@@ -46,8 +46,9 @@ const Footer = () => {
     const lock = localStorage.getItem("lg_cannot_go_back") === "true"
     const onFinalApproval = location.pathname === "/final-approval"
     const onUploadPhotos = location.pathname.includes("/upload-photos/")
+    const onUploadLinkSent = location.pathname.includes("/upload-link-sent")
 
-    if (lock || onFinalApproval || onUploadPhotos) {
+    if (lock || onFinalApproval || onUploadPhotos || onUploadLinkSent) {
       setShowRestartDialog(true)
       return
     }

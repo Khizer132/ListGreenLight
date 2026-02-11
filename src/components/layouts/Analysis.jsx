@@ -146,7 +146,6 @@ const Analysis = () => {
           {isAnalyzing && (
             <p className="text-sm text-amber-700 mb-2 font-medium">
               Usually 1–2 minutes. Please wait and don’t close this page.
-              <span className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent" />
             </p>
           )}
 

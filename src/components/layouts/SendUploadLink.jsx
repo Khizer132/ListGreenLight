@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { use } from 'react'
 import { IoMdCheckmark } from "react-icons/io";
 import { FiCopy } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +41,9 @@ const SendUploadLink = () => {
     registerNext(handleLinkNext)
   }, [])
 
+  useEffect(() => {
+    localStorage.setItem("lg_cannot_go_back", "true")
+  }, [])
 
   return (
     <div className='max-w-7xl mx-auto px-6 py-8 pb-32'>

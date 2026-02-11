@@ -184,32 +184,32 @@ const Approval = () => {
           })}
         </div>
 
-        <div className="flex gap-2 items-center justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
           {!isFinalized ? (
             <>
               <button
-                className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-12 py-3 sm:py-4 bg-emerald-600 text-white rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 onClick={handleFinalApprovalClick}
                 disabled={isLoading}
               >
-                <MdOutlineCheck className="size-6" />
+                <MdOutlineCheck className="text-lg sm:text-xl" />
                 GreenLight Approval
               </button>
 
               <button
-                className="px-12 py-6 bg-yellow-400 text-white sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-12 py-3 sm:py-4 bg-yellow-400 text-white rounded-lg font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 onClick={() => setShowFeedbackPopUp(true)}
               >
-                <MdAdjust />
+                <MdAdjust className="text-lg sm:text-xl" />
                 Minor Adjusments
               </button>
 
               <button
-                className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-12 py-3 sm:py-4 bg-emerald-600 text-white rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 onClick={handleFinalApprovalClick}
                 disabled={isLoading}
               >
-                <MdOutlineCheck className="size-6" />
+                <MdOutlineCheck className="text-lg sm:text-xl" />
                 Good as is
               </button>
             </>
