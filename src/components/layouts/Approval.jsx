@@ -107,12 +107,12 @@ const Approval = () => {
         {isFinalized && (
           <div className="mb-6 text-center">
             {data.approved ? (
-              <div className="text-emerald-700 font-semibold">
-                Property Approved ({data.approvalType || "approved"})
+              <div className="text-emerald-700 font-semibold text-xl">
+                Property Approved
               </div>
             ) : data.feedbackSubmitted ? (
               <div>
-                <div className="text-yellow-700 font-semibold">Feedback submitted</div>
+                <div className="text-yellow-700 font-semibold text-xl">Feedback submitted</div>
                 {data.feedback && <p className="text-sm text-gray-700 mt-2">{data.feedback}</p>}
               </div>
             ) : null}
