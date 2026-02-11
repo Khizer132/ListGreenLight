@@ -180,7 +180,9 @@ const UploadPhotos = () => {
                   ) : needsReupload ? (
                     <div className="flex flex-col items-center justify-center h-full px-4 text-center">
                       <div className="text-lg sm:text-xl font-bold mb-2 text-gray-700">{room.label}</div>
-                      <div className="text-xs text-gray-500">Click to upload or replace</div>
+                      <div className="text-xs sm:text-sm text-gray-500">
+                        {isRoomUploading ? "Uploading..." : "Click to upload photo or replace"}
+                        </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full">

@@ -39,8 +39,17 @@ const Analysis = () => {
     roomLabel: "",
   })
 
+  const [expandedRooms, setExpandedRooms] = useState({})
+
   const closeLightbox = useCallback(() => {
     setLightbox({ open: false, url: "", roomLabel: "" })
+  }, [])
+
+  const toggleRoomExpanded = useCallback((roomId) => {
+    setExpandedRooms((prev) => ({
+      ...prev,
+      [roomId]: !prev[roomId],
+    }))
   }, [])
 
   useEffect(() => {
@@ -221,10 +230,31 @@ const Analysis = () => {
                     <>
                       <p className="font-semibold">The Checklist:</p>
                       <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        {result.checklist.map((item, idx) => (
-                          <li key={idx}>{item}</li>
-                        ))}
+                        {result.checklist
+                          .slice(0, expandedRooms[room.id] ? undefined : 3)
+                          .map((item, idx) => (
+                            <li key={idx}>{item}</li>
+                          ))}
                       </ul>
+                      {result.checklist.length > 3 && (
+                        <div className="flex justify-center mt-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleRoomExpanded(room.id)}
+                            className="text-emerald-600 hover:text-emerald-700 font-medium text-sm inline-flex items-center gap-1"
+                          >
+                            {expandedRooms[room.id] ? (
+                              <>
+                                See Less <span className="mt-1"><i className="fa-solid fa-chevron-up"></i></span>
+                              </>
+                            ) : (
+                              <>
+                                See More <span><i className="fa-solid fa-chevron-down"></i></span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
