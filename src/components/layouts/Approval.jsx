@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from "react"
 import { MdAdjust } from "react-icons/md"
 import { MdOutlineCheck } from "react-icons/md"
@@ -20,18 +21,24 @@ const Approval = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [sendApprovalEmail, { isLoading }] = useSendApprovalEmailMutation()
-  // const [showApprovedState, setShowApprovedState] = useState(false)
 
   const searchParams = new URLSearchParams(location.search)
   const token = searchParams.get("token")
 
-
-  const { data, isLoading: loadingProperty, isError } = useGetPropertyByUploadTokenQuery(token, {
+  const {
+    data,
+    isLoading: loadingProperty,
+    isError,
+  } = useGetPropertyByUploadTokenQuery(token, {
     skip: !token,
   })
 
   const [showFeedbackPopUp, setShowFeedbackPopUp] = useState(false)
-  const [lightbox, setLightbox] = useState({ open: false, url: "", roomLabel: "" })
+  const [lightbox, setLightbox] = useState({
+    open: false,
+    url: "",
+    roomLabel: "",
+  })
 
   const closeLightbox = useCallback(() => {
     setLightbox({ open: false, url: "", roomLabel: "" })
@@ -49,6 +56,7 @@ const Approval = () => {
   const address = data?.address ?? ""
   const photos = data?.photos ?? []
   const analysisResults = data?.analysisResults ?? []
+  const isFinalized = !!data?.approvalType || !!data?.feedbackSubmitted
 
   const handleFinalApprovalClick = async () => {
     try {
@@ -68,24 +76,24 @@ const Approval = () => {
 
   if (!token) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
-        <p className="text-center text-gray-600">Missing token.</p>
+      <div className="flex min-h-screen items-center justify-center">
+        Missing token.
       </div>
     )
   }
 
   if (loadingProperty) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
-        <p className="text-center text-gray-600">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center">
+        Loading...
       </div>
     )
   }
 
   if (isError) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-8 pb-32">
-        <p className="text-center text-red-600">Could not load results.</p>
+      <div className="flex min-h-screen items-center justify-center">
+        Could not load results.
       </div>
     )
   }
@@ -95,6 +103,21 @@ const Approval = () => {
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
         <h2 className="font-bold mb-2 text-center text-xl">Final Approval (Only for Realtor)</h2>
         <p className="text-sm text-gray-600 text-center mb-6">{address || "—"}</p>
+
+        {isFinalized && (
+          <div className="mb-6 text-center">
+            {data.approved ? (
+              <div className="text-emerald-700 font-semibold">
+                Property Approved ({data.approvalType || "approved"})
+              </div>
+            ) : data.feedbackSubmitted ? (
+              <div>
+                <div className="text-yellow-700 font-semibold">Feedback submitted</div>
+                {data.feedback && <p className="text-sm text-gray-700 mt-2">{data.feedback}</p>}
+              </div>
+            ) : null}
+          </div>
+        )}
 
         <div className="mb-8 space-y-4">
           <h3 className="text-lg font-semibold">Final Results</h3>
@@ -162,31 +185,35 @@ const Approval = () => {
         </div>
 
         <div className="flex gap-2 items-center justify-center">
-          <button
-            className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            onClick={handleFinalApprovalClick}
-            disabled={isLoading}
-          >
-            <MdOutlineCheck className="size-6" />
-            GreenLight Approval
-          </button>
+          {!isFinalized ? (
+            <>
+              <button
+                className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                onClick={handleFinalApprovalClick}
+                disabled={isLoading}
+              >
+                <MdOutlineCheck className="size-6" />
+                GreenLight Approval
+              </button>
 
-          <button
-            className="px-12 py-6 bg-yellow-400 text-white sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            onClick={() => setShowFeedbackPopUp(true)}
-          >
-            <MdAdjust />
-            Minor Adjusments
-          </button>
+              <button
+                className="px-12 py-6 bg-yellow-400 text-white sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                onClick={() => setShowFeedbackPopUp(true)}
+              >
+                <MdAdjust />
+                Minor Adjusments
+              </button>
 
-          <button
-            className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            onClick={handleFinalApprovalClick}
-            disabled={isLoading}
-          >
-            <MdOutlineCheck className="size-6" />
-            Good as is
-          </button>
+              <button
+                className="px-12 py-6 bg-emerald-600 text-white  sm:py-4 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                onClick={handleFinalApprovalClick}
+                disabled={isLoading}
+              >
+                <MdOutlineCheck className="size-6" />
+                Good as is
+              </button>
+            </>
+          ) : null}
         </div>
       </div>
 

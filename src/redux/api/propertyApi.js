@@ -58,6 +58,7 @@ export const propertyApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: (result, error, body) => [{ type: "Property", id: body.token }],
     }),
     sendFeedback: builder.mutation({
       query: (body) => ({
@@ -65,6 +66,7 @@ export const propertyApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: (result, error, body) => [{ type: "Property", id: body.token }],
     }),
   }),
 })
